@@ -31,7 +31,6 @@ CreateWindow()
     nodelay(Window, TRUE);
     noecho();
     curs_set(FALSE);
-    resize_term(DISPLAY_HEIGHT, DISPLAY_WIDTH);
     start_color();
     init_pair(1, COLOR_RED, COLOR_WHITE);
     init_pair(2, COLOR_RED, COLOR_BLACK);
