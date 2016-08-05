@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ncurses.h>
+#include <unistd.h>
 
 #include "chip8.h"
 
@@ -133,6 +135,11 @@ void Chip8DoCycle(chip8 *Processor)
 
 void Chip8DrawGraphics(chip8 *Processor)
 {
+    clear();
+
+    // mvprintw(y, x, c);
+
+    refresh();
 }
 
 void Chip8HandleInput(chip8 *Processor)

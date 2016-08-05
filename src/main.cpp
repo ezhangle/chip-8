@@ -3,8 +3,12 @@
 #include <stdarg.h>
 #include "chip8.h"
 
+#include <ncurses.h>
+#include <unistd.h>
+
 #define global_variable static
 #define internal static
+
 global_variable chip8 Processor;
 
 internal inline void
@@ -19,6 +23,20 @@ Fatal(const char *Format, ...)
     exit(1);
 }
 
+internal inline void
+CreateWindow()
+{
+    initscr();
+    noecho();
+    curs_set(FALSE);
+}
+
+internal inline void
+CloseWindow()
+{
+    endwin();
+}
+
 int main(int argc, char **argv)
 {
     if(argc != 2)
@@ -28,12 +46,11 @@ int main(int argc, char **argv)
     if(!Chip8LoadRom(&Processor, argv[1]))
         Fatal("Failed to load rom: %s\n", argv[1]);
 
-    /*
-    CreateWindow();
-    CreateInput();
-    */
+    /* CreateWindow(); */
+    /* CreateInput(); */
 
-    while(1)
+    Processor.Running = true;
+    while(Processor.Running)
     {
         Chip8DoCycle(&Processor);
 
@@ -46,5 +63,6 @@ int main(int argc, char **argv)
         Chip8HandleInput(&Processor);
     }
 
+    // CloseWindow();
     return 0;
 }
