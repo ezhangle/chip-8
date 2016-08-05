@@ -252,14 +252,43 @@ void Chip8DoCycle(chip8 *Processor)
 
             Processor->Draw = true;
         } break;
-        default:
+        case 0xE000:
         {
-            printf("Not yet implemented: 0x%X\n", Processor->Opcode);
+            switch(Processor->Opcode & 0x00FF)
+            {
+                case 0x009E: // EX9E: Skips the next instruction if the key stored in VX is pressed.
+                {
+                    if(Processor->Key[Processor->V[X]] == 1)
+                        Processor->Pc += 2;
+                } break;
+                case 0x00A1: // EXA1: Skips the next instruction if the key stored in VX is not pressed.
+                {
+                    if(Processor->Key[Processor->V[X]] != 1)
+                        Processor->Pc += 2;
+                } break;
+            }
         } break;
         case 0xF000:
         {
             switch(Processor->Opcode & 0x00FF)
             {
+                case 0x0007: // FX07: Sets VX to the value of the delay timer.
+                {
+                    Processor->V[X] = Processor->DelayTimer;
+                } break;
+                case 0x000A: // FX0A: A keypress is awaited and stored in VX.
+                {
+                    // getchar();
+                    // Processor->V[X] = ;
+                } break;
+                case 0x0015: // FX18: Sets the delay timer to VX.
+                {
+                    Processor->DelayTimer = Processor->V[X];
+                } break;
+                case 0x0018: // FX18: Sets the sound timer to VX.
+                {
+                    Processor->SoundTimer = Processor->V[X];
+                } break;
                 case 0x001E: // FX1E: Adds VX to I.
                 {
                     Processor->I += Processor->V[X];
@@ -267,6 +296,15 @@ void Chip8DoCycle(chip8 *Processor)
                 case 0x0029: // FX29: Sets I to the location of the sprite in character VX (4x5 font).
                 {
                     Processor->I = Processor->V[X] * 5;
+                } break;
+                case 0x0033: // FX33: Stores BCD representation of VX, with 3 digits, in memory at location I.
+                {
+                    unsigned char Digit = Processor->V[X];
+                    for(int Index = 3; Index > 0; --Index)
+                    {
+                        Processor->Memory[Processor->I + Index - 1] = Digit % 10;
+                        Digit /= 10;
+                    }
                 } break;
                 case 0x0055: // FX55: Store registers V0 through VX in memory at location I.
                 {
@@ -279,6 +317,10 @@ void Chip8DoCycle(chip8 *Processor)
                         Processor->V[Index] = Processor->Memory[Processor->I + Index];
                 } break;
             }
+        } break;
+        default:
+        {
+            printf("Not yet implemented: 0x%X\n", Processor->Opcode);
         } break;
     }
 
