@@ -5,6 +5,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <time.h>
+#include <math.h>
 
 #define internal static
 #define DISPLAY_LENGTH (DISPLAY_WIDTH * DISPLAY_HEIGHT)
@@ -98,7 +99,7 @@ void Chip8DoCycle(chip8 *Processor)
                 case 0x00E0: // 00E0: Clears the screen.
                 {
                     clear();
-                    refresh(); // TODO(koekeishiya): Do we need to call refresh here ? */
+                    refresh();
                     memset(Processor->Graphics, 0, DISPLAY_LENGTH);
                 } break;
                 case 0x00EE: // 00EE: Returns from subroutine.
@@ -228,13 +229,13 @@ void Chip8DoCycle(chip8 *Processor)
         } break;
         case 0xC000: // CXNN: Sets VX to the result of bitwise and on a random number and NN.
         {
-            Processor->V[X] = rand() & (Processor->Opcode & 0x00FF);
+            Processor->V[X] = floor((rand() % 0xFF) & (Processor->Opcode & 0x00FF));
         } break;
         case 0xD000: // DXYN: Display sprite starting at memory location I, set VF equal to collision.
         {
             Processor->V[0xF] = 0;
-            unsigned short XPos = Processor->V[X];
-            unsigned short YPos = Processor->V[Y];
+            unsigned short RegisterX = Processor->V[X];
+            unsigned short RegisterY = Processor->V[Y];
             unsigned short Height = Processor->Opcode & 0x000F;
 
             for(int Col = 0; Col < Height; ++Col)
@@ -244,7 +245,7 @@ void Chip8DoCycle(chip8 *Processor)
                 {
                     if((Pixel & (0x80 >> Row)) != 0)
                     {
-                        unsigned short Location = XPos + Row + ((YPos + Col) * 64);
+                        unsigned short Location = RegisterX + Row + ((RegisterY + Col) * DISPLAY_WIDTH);
                         if(Processor->Graphics[Location] == 1)
                             Processor->V[0xF] = 1;
 
@@ -366,7 +367,7 @@ void Chip8DrawGraphics(chip8 *Processor)
         ++Index)
     {
         int X = Index % DISPLAY_WIDTH;
-        int Y = Index / DISPLAY_WIDTH;
+        int Y = floor(Index / DISPLAY_WIDTH);
 
         if(Processor->Graphics[Index])
             attron(COLOR_PAIR(1));
@@ -384,7 +385,7 @@ void Chip8DrawGraphics(chip8 *Processor)
     refresh();
 }
 
-internal inline char
+internal inline void
 ToggleKey(chip8 *Processor, int Key)
 {
     switch(Key)
