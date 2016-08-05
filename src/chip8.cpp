@@ -29,7 +29,6 @@ void Chip8Initialize(chip8 *Processor)
     /* NOTE(koekeishiya): Clear entire processor struct to zero. */
     memset(Processor, 0, sizeof(chip8));
 
-
     /* NOTE(koekeishiya): Reset program counter to point to our starting location
      * and load font-data into memory. */
     Processor->Pc = 0x200;
