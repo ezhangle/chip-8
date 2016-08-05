@@ -55,22 +55,17 @@ int main(int argc, char **argv)
     CreateWindow();
     Processor.Running = true;
 
-    int Counter = 0;
     while(Processor.Running)
     {
-        if(Counter++ < 1000)
+        Chip8DoCycle(&Processor);
+
+        if(Processor.Draw)
         {
-            Chip8DoCycle(&Processor);
-
-            if(Processor.Draw)
-            {
-                Chip8DrawGraphics(&Processor);
-                Processor.Draw = false;
-            }
-
-            Chip8HandleInput(&Processor);
-            Counter = 0;
+            Chip8DrawGraphics(&Processor);
+            Processor.Draw = false;
         }
+
+        Chip8HandleInput(&Processor);
     }
 
     CloseWindow();
