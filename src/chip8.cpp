@@ -95,11 +95,11 @@ void Chip8DoCycle(chip8 *Processor)
                 } break;
             }
         } break;
-        case 0x1000: // 0x1NNN: Jumps to address NNN.
+        case 0x1000: // 1NNN: Jumps to address NNN.
         {
             Processor->Pc = Processor->Opcode & 0x0FFF;
         } break;
-        case 0x2000: // 0x2NNN: Calls subroutine at address NNN.
+        case 0x2000: // 2NNN: Calls subroutine at address NNN.
         {
             Processor->Stack[Processor->Sp++] = Processor->Pc;
             Processor->Pc = Processor->Opcode & 0x0FFF;
