@@ -26,7 +26,9 @@ Fatal(const char *Format, ...)
 internal inline void
 CreateWindow()
 {
-    initscr();
+    WINDOW *Window = initscr();
+    cbreak();
+    nodelay(Window, TRUE);
     noecho();
     curs_set(FALSE);
     resize_term(DISPLAY_HEIGHT, DISPLAY_WIDTH);
@@ -51,22 +53,26 @@ int main(int argc, char **argv)
         Fatal("Failed to load rom: %s\n", argv[1]);
 
     CreateWindow();
-    /* CreateInput(); */
-
     Processor.Running = true;
+
+    int Counter = 0;
     while(Processor.Running)
     {
-        Chip8DoCycle(&Processor);
-
-        if(Processor.Draw)
+        if(Counter++ < 1000)
         {
-            Chip8DrawGraphics(&Processor);
-            Processor.Draw = false;
-        }
+            Chip8DoCycle(&Processor);
 
-        Chip8HandleInput(&Processor);
+            if(Processor.Draw)
+            {
+                Chip8DrawGraphics(&Processor);
+                Processor.Draw = false;
+            }
+
+            Chip8HandleInput(&Processor);
+            Counter = 0;
+        }
     }
 
-    // CloseWindow();
+    CloseWindow();
     return 0;
 }

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ncurses.h>
 #include <unistd.h>
+#include <time.h>
 
 #define internal static
 #define DISPLAY_LENGTH (DISPLAY_WIDTH * DISPLAY_HEIGHT)
@@ -40,6 +41,8 @@ void Chip8Initialize(chip8 *Processor)
     Processor->Pc = 0x200;
     for(int Index = 0; Index < 80; ++Index)
         Processor->Memory[Index] = Chip8Font[Index];
+
+    srand(time(NULL));
 }
 
 bool Chip8LoadRom(chip8 *Processor, const char *Rom)
@@ -278,8 +281,21 @@ void Chip8DoCycle(chip8 *Processor)
                 } break;
                 case 0x000A: // FX0A: A keypress is awaited and stored in VX.
                 {
-                    // getchar();
-                    // Processor->V[X] = ;
+                    bool Keypress = false;
+                    for(int Index = 0; Index < 16; ++Index)
+                    {
+                        if(Processor->Key[Index] == 1)
+                        {
+                            Processor->V[X] = Index;
+                            Keypress = true;
+                        }
+                    }
+
+                    if(!Keypress)
+                    {
+                        Processor->Pc -= 2;
+                        return;
+                    }
                 } break;
                 case 0x0015: // FX18: Sets the delay timer to VX.
                 {
@@ -368,6 +384,38 @@ void Chip8DrawGraphics(chip8 *Processor)
     refresh();
 }
 
+internal inline char
+ToggleKey(chip8 *Processor, int Key)
+{
+    switch(Key)
+    {
+        case '1': { Processor->Key[0x1] = Processor->Key[0x1] == 1 ? 0 : 1; } break;
+        case '2': { Processor->Key[0x2] = Processor->Key[0x2] == 1 ? 0 : 1; } break;
+        case '3': { Processor->Key[0x3] = Processor->Key[0x3] == 1 ? 0 : 1; } break;
+        case '4': { Processor->Key[0xC] = Processor->Key[0xC] == 1 ? 0 : 1; } break;
+
+        case 'q': { Processor->Key[0x4] = Processor->Key[0x4] == 1 ? 0 : 1; } break;
+        case 'w': { Processor->Key[0x5] = Processor->Key[0x5] == 1 ? 0 : 1; } break;
+        case 'e': { Processor->Key[0x6] = Processor->Key[0x6] == 1 ? 0 : 1; } break;
+        case 'r': { Processor->Key[0xD] = Processor->Key[0xD] == 1 ? 0 : 1; } break;
+
+        case 'a': { Processor->Key[0x7] = Processor->Key[0x7] == 1 ? 0 : 1; } break;
+        case 's': { Processor->Key[0x8] = Processor->Key[0x8] == 1 ? 0 : 1; } break;
+        case 'd': { Processor->Key[0x9] = Processor->Key[0x9] == 1 ? 0 : 1; } break;
+        case 'f': { Processor->Key[0xE] = Processor->Key[0xE] == 1 ? 0 : 1; } break;
+
+        case 'z': { Processor->Key[0xA] = Processor->Key[0xA] == 1 ? 0 : 1; } break;
+        case 'x': { Processor->Key[0x0] = Processor->Key[0x0] == 1 ? 0 : 1; } break;
+        case 'c': { Processor->Key[0xB] = Processor->Key[0xB] == 1 ? 0 : 1; } break;
+        case 'v': { Processor->Key[0xF] = Processor->Key[0xF] == 1 ? 0 : 1; } break;
+    }
+}
+
 void Chip8HandleInput(chip8 *Processor)
 {
+    int Key = getch();
+    if(Key == ERR)
+        return;
+
+    ToggleKey(Processor, Key);
 }
