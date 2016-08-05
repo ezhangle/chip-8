@@ -82,12 +82,9 @@ void Chip8DoCycle(chip8 *Processor)
     Processor->Opcode = Processor->Memory[Processor->Pc] << 8 |
                         Processor->Memory[Processor->Pc + 1];
 
+    Processor->Pc += 2;
     unsigned short X = (Processor->Opcode & 0x0F00) >> 8;
     unsigned short Y = (Processor->Opcode & 0x00F0) >> 4;
-
-    /* NOTE(koekeishiya): Do we want to increment instantly, or increment
-     * when executing the opcode ? */
-    Processor->Pc += 2;
 
     /* NOTE(koekeishiya): The first 4-bits decide the operation. */
     switch(Processor->Opcode & 0xF000)
