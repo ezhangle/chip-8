@@ -78,6 +78,9 @@ void Chip8DoCycle(chip8 *Processor)
     Processor->Opcode = Processor->Memory[Processor->Pc] << 8 |
                         Processor->Memory[Processor->Pc + 1];
 
+    unsigned short X = (Processor->Opcode & 0x0F00) >> 8;
+    unsigned short Y = (Processor->Opcode & 0x00F0) >> 4;
+
     /* NOTE(koekeishiya): Do we want to increment instantly, or increment
      * when executing the opcode ? */
     Processor->Pc += 2;
@@ -113,11 +116,118 @@ void Chip8DoCycle(chip8 *Processor)
             Processor->Stack[Processor->Sp++] = Processor->Pc;
             Processor->Pc = Processor->Opcode & 0x0FFF;
         } break;
+        case 0x3000: // 3XNN: Skips the next instruction if VX equals NN.
+        {
+            if(Processor->V[X] == (Processor->Opcode & 0x00FF))
+                Processor->Pc += 2;
+        } break;
+        case 0x4000: // 4XNN: Skips the next instruction if VX does not equal NN.
+        {
+            if(Processor->V[X] != (Processor->Opcode & 0x00FF))
+                Processor->Pc += 2;
+        } break;
+        case 0x5000: // 5XY0: Skips the next instruction if VX equals VY.
+        {
+            if(Processor->V[X] == Processor->V[Y])
+                Processor->Pc += 2;
+        } break;
+        case 0x6000: // 6XNN: Sets VX to NN.
+        {
+            Processor->V[X] = Processor->Opcode & 0x00FF;
+        } break;
+        case 0x7000: // 7XNN: Adds NN to VX.
+        {
+            Processor->V[X] += Processor->Opcode & 0x00FF;
+        } break;
+        case 0x8000:
+        {
+            switch(Processor->Opcode & 0x000F)
+            {
+                case 0x0000: // 8XY0: Sets VX to the value of VY.
+                {
+                    Processor->V[X] = Processor->V[Y];
+                } break;
+                case 0x0001: // 8XY1: Sets VX to VX or VY.
+                {
+                    Processor->V[X] |= Processor->V[Y];
+                } break;
+                case 0x0002: // 8XY2: Sets VX to VX and VY.
+                {
+                    Processor->V[X] &= Processor->V[Y];
+                } break;
+                case 0x0003: // 8XY3: Sets VX to VX xor VY.
+                {
+                    Processor->V[X] ^= Processor->V[Y];
+                } break;
+                case 0x0004: // 8XY4: Adds VY to VX. VF is set to 1 when there is a carry.
+                {
+                    Processor->V[0xF] = 0;
+                    unsigned short Sum = Processor->V[X] + Processor->V[Y];
+
+                    if(Sum > 255)
+                    {
+                        Processor->V[0xF] = 1;
+                        Sum -= 256;
+                    }
+
+                    Processor->V[X] = Sum;
+                } break;
+                case 0x0005: // 8XY5: VY is subtracted from VX. VF is set to 0 when borrow.
+                {
+                    Processor->V[0xF] = 1;
+                    short Diff = Processor->V[X] - Processor->V[Y];
+
+                    if(Diff < 0)
+                    {
+                        Processor->V[0xF] = 0;
+                        Diff += 256;
+                    }
+
+                    Processor->V[X] = Diff;
+                } break;
+                case 0x0006: // 8XY6: Shifts VX right by one. VF is set to value of least sig bit before shift.
+                {
+                    Processor->V[0xF] = Processor->V[X] & 0x1;
+                    Processor->V[X] >>= 1;
+                } break;
+                case 0x0007: // 8XY7: Sets VX to VY minus VX. VF is set to 0 when borrow.
+                {
+                    Processor->V[0xF] = 1;
+                    short Diff = Processor->V[Y] - Processor->V[X];
+
+                    if(Diff < 0)
+                    {
+                        Processor->V[0xF] = 0;
+                        Diff += 256;
+                    }
+
+                    Processor->V[X] = Diff;
+                } break;
+                case 0x000E: // 8XYE: Shifts VX left by one. VF is set to value of most sig bit before shift.
+                {
+                    Processor->V[0xF] = Processor->V[X] & 0x80;
+                    Processor->V[X] <<= 1;
+                } break;
+            }
+        } break;
+        case 0x9000: // 5XY0: Skips the next instruction if VX does not equal VY.
+        {
+            if(Processor->V[X] != Processor->V[Y])
+                Processor->Pc += 2;
+        } break;
         case 0xA000: // ANNN: Sets I to the address NNN.
         {
             Processor->I = Processor->Opcode & 0x0FFF;
         } break;
-        case 0xD000: // DNNN: Display sprite starting at memory location I, set VF equal to collision.
+        case 0xB000: // BNNN: Jump to address NNN plus V0.
+        {
+            Processor->Pc = (Processor->Opcode & 0x0FFF) + Processor->V[0];
+        } break;
+        case 0xC000: // CXNN: Sets VX to the result of bitwise and on a random number and NN.
+        {
+            Processor->V[X] = rand() & (Processor->Opcode & 0x00FF);
+        } break;
+        case 0xD000: // DXYN: Display sprite starting at memory location I, set VF equal to collision.
         {
             Processor->V[0xF] = 0;
             unsigned short X = Processor->V[(Processor->Opcode & 0x0F00) >> 8];
@@ -145,6 +255,30 @@ void Chip8DoCycle(chip8 *Processor)
         default:
         {
             printf("Not yet implemented: 0x%X\n", Processor->Opcode);
+        } break;
+        case 0xF000:
+        {
+            switch(Processor->Opcode & 0x00FF)
+            {
+                case 0x001E: // FX1E: Adds VX to I.
+                {
+                    Processor->I += Processor->V[X];
+                } break;
+                case 0x0029: // FX29: Sets I to the location of the sprite in character VX (4x5 font).
+                {
+                    Processor->I = Processor->V[X] * 5;
+                } break;
+                case 0x0055: // FX55: Store registers V0 through VX in memory at location I.
+                {
+                    for(int Index = 0; Index <= X; ++Index)
+                        Processor->Memory[Processor->I + Index] = Processor->V[Index];
+                } break;
+                case 0x0065: // FX65: Read registers V0 through VX from memory at location I.
+                {
+                    for(int Index = 0; Index <= X; ++Index)
+                        Processor->V[Index] = Processor->Memory[Processor->I + Index];
+                } break;
+            }
         } break;
     }
 
