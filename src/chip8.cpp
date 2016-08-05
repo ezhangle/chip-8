@@ -233,8 +233,8 @@ void Chip8DoCycle(chip8 *Processor)
         case 0xD000: // DXYN: Display sprite starting at memory location I, set VF equal to collision.
         {
             Processor->V[0xF] = 0;
-            unsigned short X = Processor->V[(Processor->Opcode & 0x0F00) >> 8];
-            unsigned short Y = Processor->V[(Processor->Opcode & 0x00F0) >> 4];
+            unsigned short XPos = Processor->V[X];
+            unsigned short YPos = Processor->V[Y];
             unsigned short Height = Processor->Opcode & 0x000F;
 
             for(int Col = 0; Col < Height; ++Col)
@@ -244,7 +244,7 @@ void Chip8DoCycle(chip8 *Processor)
                 {
                     if((Pixel & (0x80 >> Row)) != 0)
                     {
-                        unsigned short Location = X + Row + ((Y + Col) * 64);
+                        unsigned short Location = XPos + Row + ((YPos + Col) * 64);
                         if(Processor->Graphics[Location] == 1)
                             Processor->V[0xF] = 1;
 
