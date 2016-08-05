@@ -29,6 +29,10 @@ CreateWindow()
     initscr();
     noecho();
     curs_set(FALSE);
+    resize_term(DISPLAY_HEIGHT, DISPLAY_WIDTH);
+    start_color();
+    init_pair(1, COLOR_RED, COLOR_WHITE);
+    init_pair(2, COLOR_RED, COLOR_BLACK);
 }
 
 internal inline void
@@ -46,7 +50,7 @@ int main(int argc, char **argv)
     if(!Chip8LoadRom(&Processor, argv[1]))
         Fatal("Failed to load rom: %s\n", argv[1]);
 
-    /* CreateWindow(); */
+    CreateWindow();
     /* CreateInput(); */
 
     Processor.Running = true;

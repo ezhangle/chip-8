@@ -1,6 +1,9 @@
 #ifndef CHIP_8
 #define CHIP_8
 
+#define DISPLAY_WIDTH 64
+#define DISPLAY_HEIGHT 32
+
 struct chip8
 {
     /* NOTE(koekeishiya): Current Opcode. The chip-8 has 35opcodes, all two bytes long. */
@@ -27,7 +30,7 @@ struct chip8
     /* NOTE(koekeishiya): The chip-8 graphics system is black & white and has a total
      * of 2048 pixels. Drawing is done in XOR mode, setting the VF register when a pixel
      * is turned off. This is used for collision detection. */
-    unsigned char Graphics[64 * 32];
+    unsigned char Graphics[DISPLAY_WIDTH * DISPLAY_HEIGHT];
 
     /* NOTE(koekeishiya): The stack is only used to store return addresses when
      * subroutines are called. must have at least 16 levels. */

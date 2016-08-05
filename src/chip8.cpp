@@ -1,10 +1,14 @@
+#include "chip8.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <ncurses.h>
 #include <unistd.h>
 
-#include "chip8.h"
+#define internal static
+#define DISPLAY_LENGTH (DISPLAY_WIDTH * DISPLAY_HEIGHT)
+
+static const char *DRAW_CHAR = " ";
 
 static unsigned char Chip8Font[80] =
 {
@@ -87,6 +91,9 @@ void Chip8DoCycle(chip8 *Processor)
             {
                 case 0x00E0: // 00E0: Clears the screen.
                 {
+                    clear();
+                    refresh(); // TODO(koekeishiya): Do we need to call refresh here ? */
+                    memset(Processor->Graphics, 0, DISPLAY_LENGTH);
                 } break;
                 case 0x00EE: // 00EE: Returns from subroutine.
                 {
@@ -106,9 +113,34 @@ void Chip8DoCycle(chip8 *Processor)
             Processor->Stack[Processor->Sp++] = Processor->Pc;
             Processor->Pc = Processor->Opcode & 0x0FFF;
         } break;
-        case 0xA000: // ANNN: Sets I to the address NNN
+        case 0xA000: // ANNN: Sets I to the address NNN.
         {
             Processor->I = Processor->Opcode & 0x0FFF;
+        } break;
+        case 0xD000: // DNNN: Display sprite starting at memory location I, set VF equal to collision.
+        {
+            Processor->V[0xF] = 0;
+            unsigned short X = Processor->V[(Processor->Opcode & 0x0F00) >> 8];
+            unsigned short Y = Processor->V[(Processor->Opcode & 0x00F0) >> 4];
+            unsigned short Height = Processor->Opcode & 0x000F;
+
+            for(int Col = 0; Col < Height; ++Col)
+            {
+                unsigned short Pixel = Processor->Memory[Processor->I + Col];
+                for(int Row = 0; Row < 8; ++Row)
+                {
+                    if((Pixel & (0x80 >> Row)) != 0)
+                    {
+                        unsigned short Location = X + Row + ((Y + Col) * 64);
+                        if(Processor->Graphics[Location] == 1)
+                            Processor->V[0xF] = 1;
+
+                        Processor->Graphics[Location] ^= 1;
+                    }
+                }
+            }
+
+            Processor->Draw = true;
         } break;
         default:
         {
@@ -137,7 +169,25 @@ void Chip8DrawGraphics(chip8 *Processor)
 {
     clear();
 
-    // mvprintw(y, x, c);
+    for(int Index = 0;
+        Index < DISPLAY_LENGTH;
+        ++Index)
+    {
+        int X = Index % DISPLAY_WIDTH;
+        int Y = Index / DISPLAY_WIDTH;
+
+        if(Processor->Graphics[Index])
+            attron(COLOR_PAIR(1));
+        else
+            attron(COLOR_PAIR(2));
+
+        mvprintw(Y, X, DRAW_CHAR);
+
+        if(Processor->Graphics[Index])
+            attroff(COLOR_PAIR(1));
+        else
+            attroff(COLOR_PAIR(2));
+    }
 
     refresh();
 }
