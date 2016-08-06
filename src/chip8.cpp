@@ -333,20 +333,4 @@ void Chip8DoCycle(chip8 *Processor)
             printf("Not yet implemented: 0x%X\n", Processor->Opcode);
         } break;
     }
-
-    /* TODO(koekeishiya): Times should count down at 60hz,
-     * implement a way to execute 60opcodes per second. */
-    if(Processor->DelayTimer > 0)
-    {
-        --Processor->DelayTimer;
-    }
-
-    if(Processor->SoundTimer > 0)
-    {
-        if(Processor->SoundTimer == 1)
-            printf("Make buzzer sound!\n");
-
-        --Processor->SoundTimer;
-    }
-
 }

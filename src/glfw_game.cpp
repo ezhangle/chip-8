@@ -21,9 +21,7 @@ struct glfw_window_dimension
 };
 
 internal unsigned long long GetTimeNanos();
-internal unsigned long long GetTimeMillis();
-
-global_variable long DeltaTime = 1E9 / 480;
+global_variable long DeltaTime = 1E9 / 400;
 global_variable long CurrentTime = GetTimeNanos();
 global_variable long NewTime = 0;
 global_variable double FrameTime = 0;
@@ -181,7 +179,20 @@ int main(int argc, char **argv)
 
         while(FrameTime >= DeltaTime)
         {
-            Chip8DoCycle(&Processor);
+            if(Processor.DelayTimer == 0)
+                Chip8DoCycle(&Processor);
+
+            if(Processor.DelayTimer > 0)
+                --Processor.DelayTimer;
+
+            if(Processor.SoundTimer > 0)
+            {
+                if(Processor.SoundTimer == 1)
+                    printf("Make buzzer sound!\n");
+
+                --Processor.SoundTimer;
+            }
+
             if(Processor.Draw)
             {
                 GLFWClearWindow();
