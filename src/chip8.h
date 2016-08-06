@@ -57,8 +57,4 @@ bool Chip8LoadRom(chip8 *Processor, const char *Rom);
 
 void Chip8DoCycle(chip8 *Processor);
 
-void Chip8DrawGraphics(chip8 *Processor);
-
-void Chip8HandleInput(chip8 *Processor);
-
 #endif

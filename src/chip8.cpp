@@ -352,28 +352,3 @@ void Chip8DoCycle(chip8 *Processor)
     }
 
 }
-
-void Chip8DrawGraphics(chip8 *Processor)
-{
-    /*
-    for(int Index = 0;
-        Index < DISPLAY_LENGTH;
-        ++Index)
-    {
-        int X = Index % DISPLAY_WIDTH;
-        int Y = floor(Index / DISPLAY_WIDTH);
-
-        if(Processor->Graphics[Index])
-            attron(COLOR_PAIR(1));
-        else
-            attron(COLOR_PAIR(2));
-
-        mvprintw(Y, X, DRAW_CHAR);
-
-        if(Processor->Graphics[Index])
-            attroff(COLOR_PAIR(1));
-        else
-            attroff(COLOR_PAIR(2));
-    }
-    */
-}
