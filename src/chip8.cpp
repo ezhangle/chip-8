@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <ncurses.h>
 #include <unistd.h>
 #include <time.h>
 #include <math.h>
@@ -95,9 +94,8 @@ void Chip8DoCycle(chip8 *Processor)
             {
                 case 0x00E0: // 00E0: Clears the screen.
                 {
-                    clear();
-                    refresh();
                     memset(Processor->Graphics, 0, DISPLAY_LENGTH);
+                    Processor->Draw = true;
                 } break;
                 case 0x00EE: // 00EE: Returns from subroutine.
                 {
@@ -357,8 +355,7 @@ void Chip8DoCycle(chip8 *Processor)
 
 void Chip8DrawGraphics(chip8 *Processor)
 {
-    clear();
-
+    /*
     for(int Index = 0;
         Index < DISPLAY_LENGTH;
         ++Index)
@@ -378,42 +375,5 @@ void Chip8DrawGraphics(chip8 *Processor)
         else
             attroff(COLOR_PAIR(2));
     }
-
-    refresh();
-}
-
-internal inline void
-ToggleKey(chip8 *Processor, int Key)
-{
-    switch(Key)
-    {
-        case '1': { Processor->Key[0x1] = Processor->Key[0x1] == 1 ? 0 : 1; } break;
-        case '2': { Processor->Key[0x2] = Processor->Key[0x2] == 1 ? 0 : 1; } break;
-        case '3': { Processor->Key[0x3] = Processor->Key[0x3] == 1 ? 0 : 1; } break;
-        case '4': { Processor->Key[0xC] = Processor->Key[0xC] == 1 ? 0 : 1; } break;
-
-        case 'q': { Processor->Key[0x4] = Processor->Key[0x4] == 1 ? 0 : 1; } break;
-        case 'w': { Processor->Key[0x5] = Processor->Key[0x5] == 1 ? 0 : 1; } break;
-        case 'e': { Processor->Key[0x6] = Processor->Key[0x6] == 1 ? 0 : 1; } break;
-        case 'r': { Processor->Key[0xD] = Processor->Key[0xD] == 1 ? 0 : 1; } break;
-
-        case 'a': { Processor->Key[0x7] = Processor->Key[0x7] == 1 ? 0 : 1; } break;
-        case 's': { Processor->Key[0x8] = Processor->Key[0x8] == 1 ? 0 : 1; } break;
-        case 'd': { Processor->Key[0x9] = Processor->Key[0x9] == 1 ? 0 : 1; } break;
-        case 'f': { Processor->Key[0xE] = Processor->Key[0xE] == 1 ? 0 : 1; } break;
-
-        case 'z': { Processor->Key[0xA] = Processor->Key[0xA] == 1 ? 0 : 1; } break;
-        case 'x': { Processor->Key[0x0] = Processor->Key[0x0] == 1 ? 0 : 1; } break;
-        case 'c': { Processor->Key[0xB] = Processor->Key[0xB] == 1 ? 0 : 1; } break;
-        case 'v': { Processor->Key[0xF] = Processor->Key[0xF] == 1 ? 0 : 1; } break;
-    }
-}
-
-void Chip8HandleInput(chip8 *Processor)
-{
-    int Key = getch();
-    if(Key == ERR)
-        return;
-
-    ToggleKey(Processor, Key);
+    */
 }
