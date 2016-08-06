@@ -23,7 +23,7 @@ struct glfw_window_dimension
 internal unsigned long long GetTimeNanos();
 internal unsigned long long GetTimeMillis();
 
-global_variable long DeltaTime = 1E9 / 240;
+global_variable long DeltaTime = 1E9 / 480;
 global_variable long CurrentTime = GetTimeNanos();
 global_variable long NewTime = 0;
 global_variable double FrameTime = 0;
