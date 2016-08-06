@@ -81,7 +81,7 @@ GLFWKeyCallback(GLFWwindow *Window, int key, int scancode, int action, int mods)
         case GLFW_KEY_A: { Processor.Key[0x7] = (action == GLFW_PRESS || action == GLFW_REPEAT); break; }
         case GLFW_KEY_S: { Processor.Key[0x8] = (action == GLFW_PRESS || action == GLFW_REPEAT); break; }
         case GLFW_KEY_D: { Processor.Key[0x9] = (action == GLFW_PRESS || action == GLFW_REPEAT); break; }
-        case GLFW_KEY_F: { Processor.Key[0xD] = (action == GLFW_PRESS || action == GLFW_REPEAT); break; }
+        case GLFW_KEY_F: { Processor.Key[0xE] = (action == GLFW_PRESS || action == GLFW_REPEAT); break; }
 
         case GLFW_KEY_Z: { Processor.Key[0xA] = (action == GLFW_PRESS || action == GLFW_REPEAT); break; }
         case GLFW_KEY_X: { Processor.Key[0x0] = (action == GLFW_PRESS || action == GLFW_REPEAT); break; }
