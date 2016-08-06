@@ -9,8 +9,6 @@
 #define internal static
 #define DISPLAY_LENGTH (DISPLAY_WIDTH * DISPLAY_HEIGHT)
 
-static const char *DRAW_CHAR = " ";
-
 static unsigned char Chip8Font[80] =
 {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
