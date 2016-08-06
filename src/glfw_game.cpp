@@ -132,17 +132,6 @@ GLFWCreateWindow(int Width, int Height, const char *Title)
 }
 
 internal inline void
-DrawPixel(int X, int Y)
-{
-    glBegin(GL_QUADS);
-    glVertex3f((X * DISPLAY_MODIFIER) + 0.0f,     (Y * DISPLAY_MODIFIER) + 0.0f,     0.0f);
-    glVertex3f((X * DISPLAY_MODIFIER) + 0.0f,     (Y * DISPLAY_MODIFIER) + DISPLAY_MODIFIER, 0.0f);
-    glVertex3f((X * DISPLAY_MODIFIER) + DISPLAY_MODIFIER, (Y * DISPLAY_MODIFIER) + DISPLAY_MODIFIER, 0.0f);
-    glVertex3f((X * DISPLAY_MODIFIER) + DISPLAY_MODIFIER, (Y * DISPLAY_MODIFIER) + 0.0f,     0.0f);
-    glEnd();
-}
-
-internal inline void
 DrawGraphics()
 {
     for(int Y = 0; Y < DISPLAY_HEIGHT; ++Y)
@@ -154,7 +143,12 @@ DrawGraphics()
             else
                 glColor3f(1.0f, 1.0f, 1.0f);
 
-            DrawPixel(X, Y);
+            glBegin(GL_QUADS);
+            glVertex3f((X * DISPLAY_MODIFIER), (Y * DISPLAY_MODIFIER), 0.0f);
+            glVertex3f((X * DISPLAY_MODIFIER), (Y * DISPLAY_MODIFIER) + DISPLAY_MODIFIER, 0.0f);
+            glVertex3f((X * DISPLAY_MODIFIER) + DISPLAY_MODIFIER, (Y * DISPLAY_MODIFIER) + DISPLAY_MODIFIER, 0.0f);
+            glVertex3f((X * DISPLAY_MODIFIER) + DISPLAY_MODIFIER, (Y * DISPLAY_MODIFIER) + 0.0f, 0.0f);
+            glEnd();
         }
     }
 }
