@@ -85,6 +85,8 @@ GLFWKeyCallback(GLFWwindow *Window, int key, int scancode, int action, int mods)
         case GLFW_KEY_X: { Processor.Key[0x0] = (action == GLFW_PRESS || action == GLFW_REPEAT); break; }
         case GLFW_KEY_C: { Processor.Key[0xB] = (action == GLFW_PRESS || action == GLFW_REPEAT); break; }
         case GLFW_KEY_V: { Processor.Key[0xF] = (action == GLFW_PRESS || action == GLFW_REPEAT); break; }
+
+        case GLFW_KEY_P: { if(action == GLFW_PRESS) Processor.Paused = !Processor.Paused; break; }
     }
 }
 
@@ -179,30 +181,31 @@ int main(int argc, char **argv)
 
         while(FrameTime >= DeltaTime)
         {
-            if(Processor.DelayTimer == 0)
-                Chip8DoCycle(&Processor);
-
-            if(Processor.DelayTimer > 0)
-                --Processor.DelayTimer;
-
-            if(Processor.SoundTimer > 0)
+            if(!Processor.Paused)
             {
-                if(Processor.SoundTimer == 1)
-                    printf("Make buzzer sound!\n");
+                if(Processor.DelayTimer == 0)
+                    Chip8DoCycle(&Processor);
 
-                --Processor.SoundTimer;
+                if(Processor.DelayTimer > 0)
+                    --Processor.DelayTimer;
+
+                if(Processor.SoundTimer > 0)
+                {
+                    if(Processor.SoundTimer == 1)
+                        printf("Make buzzer sound!\n");
+
+                    --Processor.SoundTimer;
+                }
+
+                if(Processor.Draw)
+                {
+                    GLFWClearWindow();
+                    DrawGraphics();
+                    Processor.Draw = false;
+                }
             }
 
-            if(Processor.Draw)
-            {
-                GLFWClearWindow();
-
-                DrawGraphics();
-
-                GLFWUpdateWindow(Window);
-                Processor.Draw = false;
-            }
-
+            GLFWUpdateWindow(Window);
             FrameTime -= DeltaTime;
         }
     }

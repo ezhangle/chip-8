@@ -47,6 +47,9 @@ struct chip8
 
     /* NOTE(koekeishiya): We do not draw every cycle! */
     bool Draw;
+
+    /* NOTE(koekeishiya): Pause execution. */
+    bool Paused;
 };
 
 void Chip8Initialize(chip8 *Processor);
