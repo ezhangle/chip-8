@@ -20,6 +20,7 @@ struct glfw_window_dimension
     int Height;
 };
 
+internal void ResetRom();
 internal unsigned long long GetTimeNanos();
 global_variable long DeltaTime = 1E9 / 400;
 global_variable long CurrentTime = GetTimeNanos();
@@ -28,6 +29,7 @@ global_variable double FrameTime = 0;
 
 global_variable int DISPLAY_MODIFIER = 10;
 global_variable chip8 Processor;
+global_variable const char *LoadedRom;
 
 internal unsigned long long
 GetTimeNanos()
@@ -87,6 +89,8 @@ GLFWKeyCallback(GLFWwindow *Window, int key, int scancode, int action, int mods)
         case GLFW_KEY_V: { Processor.Key[0xF] = (action == GLFW_PRESS || action == GLFW_REPEAT); break; }
 
         case GLFW_KEY_P: { if(action == GLFW_PRESS) Processor.Paused = !Processor.Paused; break; }
+        case GLFW_KEY_ENTER: { ResetRom(); break; }
+        case GLFW_KEY_ESCAPE: { exit(0); break; }
     }
 }
 
@@ -153,14 +157,23 @@ DrawGraphics()
     }
 }
 
+internal void
+ResetRom()
+{
+    Chip8Initialize(&Processor);
+    if(!Chip8LoadRom(&Processor, LoadedRom))
+        Fatal("Failed to load rom: %s\n", LoadedRom);
+}
+
 int main(int argc, char **argv)
 {
     if(argc != 2)
         Fatal("Usage: chip8 /path/to/rom\n");
 
+    LoadedRom = argv[1];
     Chip8Initialize(&Processor);
-    if(!Chip8LoadRom(&Processor, argv[1]))
-        Fatal("Failed to load rom: %s\n", argv[1]);
+    if(!Chip8LoadRom(&Processor, LoadedRom))
+        Fatal("Failed to load rom: %s\n", LoadedRom);
 
     glfw_window_dimension Dimension = { DISPLAY_WIDTH * DISPLAY_MODIFIER,
                                         DISPLAY_HEIGHT * DISPLAY_MODIFIER };
