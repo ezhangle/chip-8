@@ -34,11 +34,9 @@ void Chip8Initialize(chip8 *Processor)
     /* NOTE(koekeishiya): Clear entire processor struct to zero. */
     memset(Processor, 0, sizeof(chip8));
 
-    /* NOTE(koekeishiya): Reset program counter to point to our starting location
-     * and load font-data into memory. */
+    /* NOTE(koekeishiya): Reset program counter to starting location and load font-data into memory. */
     Processor->Pc = 0x200;
-    for(int Index = 0; Index < 80; ++Index)
-        Processor->Memory[Index] = Chip8Font[Index];
+    memcpy(Processor->Memory, Chip8Font, sizeof(Chip8Font));
 
     srand(time(NULL));
 }
