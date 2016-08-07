@@ -46,30 +46,19 @@ void Chip8Initialize(chip8 *Processor)
 bool Chip8LoadRom(chip8 *Processor, const char *Rom)
 {
     FILE *FileHandle = fopen(Rom, "rb");
-    char *Contents = NULL;
     unsigned int Length = 0;
 
     if(FileHandle)
     {
         fseek(FileHandle, 0, SEEK_END);
         Length = ftell(FileHandle);
-
         fseek(FileHandle, 0, SEEK_SET);
-        Contents = (char *) malloc(Length + 1);
-
-        fread(Contents, Length, 1, FileHandle);
-        Contents[Length] = '\0';
+        fread(Processor->Memory + 0x200, Length, 1, FileHandle);
         fclose(FileHandle);
-
-        for(int Index = 0; Index < Length; ++Index)
-            Processor->Memory[0x200 + Index] = Contents[Index];
-
-        free(Contents);
         return true;
     }
     else
     {
-        printf("Could not open file: %s\n", Rom);
         return false;
     }
 }
